@@ -1,0 +1,204 @@
+
+test.elf:     file format elf64-littleriscv
+
+
+Disassembly of section .text:
+
+0000000080000000 <_start>:
+    80000000:	00000297          	auipc	t0,0x0
+    80000004:	13428293          	add	t0,t0,308 # 80000134 <trap_handler>
+    80000008:	30529073          	csrw	mtvec,t0
+    8000000c:	300023f3          	csrr	t2,mstatus
+    80000010:	000022b7          	lui	t0,0x2
+    80000014:	8002829b          	addw	t0,t0,-2048 # 1800 <_start-0x7fffe800>
+    80000018:	0053e3b3          	or	t2,t2,t0
+    8000001c:	30039073          	csrw	mstatus,t2
+    80000020:	068000ef          	jal	80000088 <configure_pmp>
+    80000024:	300023f3          	csrr	t2,mstatus
+    80000028:	ffffee37          	lui	t3,0xffffe
+    8000002c:	7ffe0e1b          	addw	t3,t3,2047 # ffffffffffffe7ff <stack_top+0xffffffff7fffb7df>
+    80000030:	007e73b3          	and	t2,t3,t2
+    80000034:	000012b7          	lui	t0,0x1
+    80000038:	8002829b          	addw	t0,t0,-2048 # 800 <_start-0x7ffff800>
+    8000003c:	0053e3b3          	or	t2,t2,t0
+    80000040:	30039073          	csrw	mstatus,t2
+    80000044:	00000297          	auipc	t0,0x0
+    80000048:	01028293          	add	t0,t0,16 # 80000054 <supervisor_mode>
+    8000004c:	34129073          	csrw	mepc,t0
+    80000050:	30200073          	mret
+
+0000000080000054 <supervisor_mode>:
+    80000054:	078000ef          	jal	800000cc <test_pmp_access>
+    80000058:	00000073          	ecall
+    8000005c:	300023f3          	csrr	t2,mstatus
+    80000060:	00002e37          	lui	t3,0x2
+    80000064:	800e0e1b          	addw	t3,t3,-2048 # 1800 <_start-0x7fffe800>
+    80000068:	01c3e3b3          	or	t2,t2,t3
+    8000006c:	30039073          	csrw	mstatus,t2
+    80000070:	05c000ef          	jal	800000cc <test_pmp_access>
+    80000074:	00100293          	li	t0,1
+    80000078:	00002317          	auipc	t1,0x2
+    8000007c:	f8830313          	add	t1,t1,-120 # 80002000 <tohost>
+    80000080:	00532023          	sw	t0,0(t1)
+    80000084:	00000073          	ecall
+
+0000000080000088 <configure_pmp>:
+    80000088:	000802b7          	lui	t0,0x80
+    8000008c:	0012829b          	addw	t0,t0,1 # 80001 <_start-0x7ff7ffff>
+    80000090:	00c29293          	sll	t0,t0,0xc
+    80000094:	0022d293          	srl	t0,t0,0x2
+    80000098:	3b029073          	csrw	pmpaddr0,t0
+    8000009c:	08c00293          	li	t0,140
+    800000a0:	3a029073          	csrw	pmpcfg0,t0
+    800000a4:	000802b7          	lui	t0,0x80
+    800000a8:	0012829b          	addw	t0,t0,1 # 80001 <_start-0x7ff7ffff>
+    800000ac:	00c29293          	sll	t0,t0,0xc
+    800000b0:	0022d293          	srl	t0,t0,0x2
+    800000b4:	1ff2e293          	or	t0,t0,511
+    800000b8:	3b129073          	csrw	pmpaddr1,t0
+    800000bc:	0000a2b7          	lui	t0,0xa
+    800000c0:	98c2829b          	addw	t0,t0,-1652 # 998c <_start-0x7fff6674>
+    800000c4:	3a029073          	csrw	pmpcfg0,t0
+    800000c8:	00008067          	ret
+
+00000000800000cc <test_pmp_access>:
+    800000cc:	00008413          	mv	s0,ra
+    800000d0:	0010029b          	addw	t0,zero,1
+    800000d4:	01f29293          	sll	t0,t0,0x1f
+    800000d8:	0002a303          	lw	t1,0(t0)
+    800000dc:	0010029b          	addw	t0,zero,1
+    800000e0:	01f29293          	sll	t0,t0,0x1f
+    800000e4:	00400313          	li	t1,4
+    800000e8:	0062a023          	sw	t1,0(t0)
+    800000ec:	000802b7          	lui	t0,0x80
+    800000f0:	0012829b          	addw	t0,t0,1 # 80001 <_start-0x7ff7ffff>
+    800000f4:	00c29293          	sll	t0,t0,0xc
+    800000f8:	00428293          	add	t0,t0,4
+    800000fc:	0002a303          	lw	t1,0(t0)
+    80000100:	000802b7          	lui	t0,0x80
+    80000104:	0012829b          	addw	t0,t0,1 # 80001 <_start-0x7ff7ffff>
+    80000108:	00c29293          	sll	t0,t0,0xc
+    8000010c:	00428293          	add	t0,t0,4
+    80000110:	00400313          	li	t1,4
+    80000114:	0062a023          	sw	t1,0(t0)
+    80000118:	000802b7          	lui	t0,0x80
+    8000011c:	0012829b          	addw	t0,t0,1 # 80001 <_start-0x7ff7ffff>
+    80000120:	00c29293          	sll	t0,t0,0xc
+    80000124:	00428293          	add	t0,t0,4
+    80000128:	000280e7          	jalr	t0
+    8000012c:	00040093          	mv	ra,s0
+    80000130:	00008067          	ret
+
+0000000080000134 <trap_handler>:
+    80000134:	343022f3          	csrr	t0,mtval
+    80000138:	342022f3          	csrr	t0,mcause
+    8000013c:	00900313          	li	t1,9
+    80000140:	04628463          	beq	t0,t1,80000188 <handle_supervisor_ecall>
+    80000144:	00100313          	li	t1,1
+    80000148:	02628c63          	beq	t0,t1,80000180 <handle_instruction_fault>
+    8000014c:	00500313          	li	t1,5
+    80000150:	00628863          	beq	t0,t1,80000160 <handle_load_fault>
+    80000154:	00700313          	li	t1,7
+    80000158:	00628c63          	beq	t0,t1,80000170 <handle_store_fault>
+    8000015c:	0540006f          	j	800001b0 <return_from_trap>
+
+0000000080000160 <handle_load_fault>:
+    80000160:	341022f3          	csrr	t0,mepc
+    80000164:	00428293          	add	t0,t0,4
+    80000168:	34129073          	csrw	mepc,t0
+    8000016c:	30200073          	mret
+
+0000000080000170 <handle_store_fault>:
+    80000170:	341022f3          	csrr	t0,mepc
+    80000174:	00428293          	add	t0,t0,4
+    80000178:	34129073          	csrw	mepc,t0
+    8000017c:	30200073          	mret
+
+0000000080000180 <handle_instruction_fault>:
+    80000180:	34109073          	csrw	mepc,ra
+    80000184:	30200073          	mret
+
+0000000080000188 <handle_supervisor_ecall>:
+    80000188:	300022f3          	csrr	t0,mstatus
+    8000018c:	00002337          	lui	t1,0x2
+    80000190:	8003031b          	addw	t1,t1,-2048 # 1800 <_start-0x7fffe800>
+    80000194:	00536333          	or	t1,t1,t0
+    80000198:	30031073          	csrw	mstatus,t1
+    8000019c:	14102373          	csrr	t1,sepc
+    800001a0:	34102373          	csrr	t1,mepc
+    800001a4:	00430313          	add	t1,t1,4
+    800001a8:	34131073          	csrw	mepc,t1
+    800001ac:	30200073          	mret
+
+00000000800001b0 <return_from_trap>:
+    800001b0:	341022f3          	csrr	t0,mepc
+    800001b4:	00428293          	add	t0,t0,4
+    800001b8:	34129073          	csrw	mepc,t0
+    800001bc:	30200073          	mret
+
+00000000800001c0 <exit_program>:
+    800001c0:	00100293          	li	t0,1
+    800001c4:	00002317          	auipc	t1,0x2
+    800001c8:	e3c30313          	add	t1,t1,-452 # 80002000 <tohost>
+    800001cc:	00532023          	sw	t0,0(t1)
+    800001d0:	0000006f          	j	800001d0 <exit_program+0x10>
+
+Disassembly of section .data:
+
+0000000080001000 <napot_region>:
+    80001000:	5678                	.2byte	0x5678
+    80001002:	1234                	.2byte	0x1234
+
+0000000080001004 <tor_region>:
+    80001004:	4321                	.2byte	0x4321
+    80001006:	8765                	.2byte	0x8765
+
+0000000080001008 <n>:
+    80001008:	0005                	.2byte	0x5
+	...
+
+Disassembly of section .tohost:
+
+0000000080002000 <tohost>:
+	...
+
+0000000080002010 <fromhost>:
+	...
+
+Disassembly of section .bss:
+
+0000000080002020 <stack_top-0x1000>:
+	...
+
+0000000080003020 <stack_top>:
+	...
+
+Disassembly of section .riscv.attributes:
+
+0000000000000000 <.riscv.attributes>:
+   0:	3a41                	.2byte	0x3a41
+   2:	0000                	.2byte	0x0
+   4:	7200                	.2byte	0x7200
+   6:	7369                	.2byte	0x7369
+   8:	01007663          	bgeu	zero,a6,14 <_start-0x7fffffec>
+   c:	0030                	.2byte	0x30
+   e:	0000                	.2byte	0x0
+  10:	7205                	.2byte	0x7205
+  12:	3676                	.2byte	0x3676
+  14:	6934                	.2byte	0x6934
+  16:	7032                	.2byte	0x7032
+  18:	5f30                	.2byte	0x5f30
+  1a:	326d                	.2byte	0x326d
+  1c:	3070                	.2byte	0x3070
+  1e:	615f 7032 5f30      	.byte	0x5f, 0x61, 0x32, 0x70, 0x30, 0x5f
+  24:	3266                	.2byte	0x3266
+  26:	3070                	.2byte	0x3070
+  28:	645f 7032 5f30      	.byte	0x5f, 0x64, 0x32, 0x70, 0x30, 0x5f
+  2e:	6d7a                	.2byte	0x6d7a
+  30:	756d                	.2byte	0x756d
+  32:	316c                	.2byte	0x316c
+  34:	3070                	.2byte	0x3070
+  36:	0800                	.2byte	0x800
+  38:	0a01                	.2byte	0xa01
+  3a:	0b              	Address 0x3a is out of bounds.
+
