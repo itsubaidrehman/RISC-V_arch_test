@@ -1,0 +1,223 @@
+
+test.elf:     file format elf32-littleriscv
+
+
+Disassembly of section .text.init:
+
+80000000 <_start>:
+80000000:	184000ef          	jal	80000184 <machine_mode>
+80000004:	00000297          	auipc	t0,0x0
+80000008:	0b028293          	add	t0,t0,176 # 800000b4 <trap_handler>
+8000000c:	30529073          	csrw	mtvec,t0
+80000010:	00000513          	li	a0,0
+80000014:	800005b7          	lui	a1,0x80000
+80000018:	0cf00613          	li	a2,207
+8000001c:	00100693          	li	a3,1
+80000020:	17c000ef          	jal	8000019c <setup_pte>
+80000024:	15800513          	li	a0,344
+80000028:	800005b7          	lui	a1,0x80000
+8000002c:	0cf00613          	li	a2,207
+80000030:	00000693          	li	a3,0
+80000034:	168000ef          	jal	8000019c <setup_pte>
+80000038:	00003297          	auipc	t0,0x3
+8000003c:	fc828293          	add	t0,t0,-56 # 80003000 <outer_page_table>
+80000040:	00c2d293          	srl	t0,t0,0xc
+80000044:	80000337          	lui	t1,0x80000
+80000048:	0062e2b3          	or	t0,t0,t1
+8000004c:	18029073          	csrw	satp,t0
+80000050:	00000297          	auipc	t0,0x0
+80000054:	03c28293          	add	t0,t0,60 # 8000008c <translation>
+80000058:	00001337          	lui	t1,0x1
+8000005c:	fff30313          	add	t1,t1,-1 # fff <_start-0x7ffff001>
+80000060:	0062f333          	and	t1,t0,t1
+80000064:	34131073          	csrw	mepc,t1
+80000068:	300022f3          	csrr	t0,mstatus
+8000006c:	ffffe337          	lui	t1,0xffffe
+80000070:	7ff30313          	add	t1,t1,2047 # ffffe7ff <_end+0x7fff97fb>
+80000074:	0062f2b3          	and	t0,t0,t1
+80000078:	00001337          	lui	t1,0x1
+8000007c:	80030313          	add	t1,t1,-2048 # 800 <_start-0x7ffff800>
+80000080:	0062e2b3          	or	t0,t0,t1
+80000084:	30029073          	csrw	mstatus,t0
+80000088:	30200073          	mret
+
+8000008c <translation>:
+8000008c:	00005697          	auipc	a3,0x5
+80000090:	f7468693          	add	a3,a3,-140 # 80005000 <random_data>
+80000094:	0006a303          	lw	t1,0(a3)
+80000098:	00400e13          	li	t3,4
+8000009c:	01c6a023          	sw	t3,0(a3)
+
+800000a0 <exit_test>:
+800000a0:	00100293          	li	t0,1
+800000a4:	00002317          	auipc	t1,0x2
+800000a8:	f5c30313          	add	t1,t1,-164 # 80002000 <tohost>
+800000ac:	00532023          	sw	t0,0(t1)
+800000b0:	1580006f          	j	80000208 <write_tohost>
+
+800000b4 <trap_handler>:
+800000b4:	34202ef3          	csrr	t4,mcause
+800000b8:	00200313          	li	t1,2
+800000bc:	046e8863          	beq	t4,t1,8000010c <illegal_instruction_handler>
+800000c0:	00800313          	li	t1,8
+800000c4:	086e8e63          	beq	t4,t1,80000160 <user_ecall_handler>
+800000c8:	00900313          	li	t1,9
+800000cc:	066e8263          	beq	t4,t1,80000130 <supervisor_ecall_handler>
+800000d0:	00c00313          	li	t1,12
+800000d4:	046e8663          	beq	t4,t1,80000120 <instruction_page_fault_handler>
+800000d8:	00d00313          	li	t1,13
+800000dc:	006e8863          	beq	t4,t1,800000ec <handle_load_page_fault>
+800000e0:	00f00313          	li	t1,15
+800000e4:	006e8c63          	beq	t4,t1,800000fc <handle_store_page_fault>
+800000e8:	1200006f          	j	80000208 <write_tohost>
+
+800000ec <handle_load_page_fault>:
+800000ec:	341022f3          	csrr	t0,mepc
+800000f0:	00428293          	add	t0,t0,4
+800000f4:	34129073          	csrw	mepc,t0
+800000f8:	30200073          	mret
+
+800000fc <handle_store_page_fault>:
+800000fc:	341022f3          	csrr	t0,mepc
+80000100:	00428293          	add	t0,t0,4
+80000104:	34129073          	csrw	mepc,t0
+80000108:	30200073          	mret
+
+8000010c <illegal_instruction_handler>:
+8000010c:	300022f3          	csrr	t0,mstatus
+80000110:	00000317          	auipc	t1,0x0
+80000114:	f9030313          	add	t1,t1,-112 # 800000a0 <exit_test>
+80000118:	34131073          	csrw	mepc,t1
+8000011c:	30200073          	mret
+
+80000120 <instruction_page_fault_handler>:
+80000120:	00000317          	auipc	t1,0x0
+80000124:	f8030313          	add	t1,t1,-128 # 800000a0 <exit_test>
+80000128:	34131073          	csrw	mepc,t1
+8000012c:	30200073          	mret
+
+80000130 <supervisor_ecall_handler>:
+80000130:	300022f3          	csrr	t0,mstatus
+80000134:	ffffe337          	lui	t1,0xffffe
+80000138:	7ff30313          	add	t1,t1,2047 # ffffe7ff <_end+0x7fff97fb>
+8000013c:	0062f2b3          	and	t0,t0,t1
+80000140:	00002337          	lui	t1,0x2
+80000144:	80030313          	add	t1,t1,-2048 # 1800 <_start-0x7fffe800>
+80000148:	0062e2b3          	or	t0,t0,t1
+8000014c:	30029073          	csrw	mstatus,t0
+80000150:	341023f3          	csrr	t2,mepc
+80000154:	00438393          	add	t2,t2,4
+80000158:	34139073          	csrw	mepc,t2
+8000015c:	30200073          	mret
+
+80000160 <user_ecall_handler>:
+80000160:	300022f3          	csrr	t0,mstatus
+80000164:	ffffe337          	lui	t1,0xffffe
+80000168:	7ff30313          	add	t1,t1,2047 # ffffe7ff <_end+0x7fff97fb>
+8000016c:	0062f2b3          	and	t0,t0,t1
+80000170:	00001337          	lui	t1,0x1
+80000174:	80030313          	add	t1,t1,-2048 # 800 <_start-0x7ffff800>
+80000178:	0062e2b3          	or	t0,t0,t1
+8000017c:	30029073          	csrw	mstatus,t0
+80000180:	30200073          	mret
+
+80000184 <machine_mode>:
+80000184:	300022f3          	csrr	t0,mstatus
+80000188:	00002337          	lui	t1,0x2
+8000018c:	80030313          	add	t1,t1,-2048 # 1800 <_start-0x7fffe800>
+80000190:	0062e2b3          	or	t0,t0,t1
+80000194:	30029073          	csrw	mstatus,t0
+80000198:	00008067          	ret
+
+8000019c <setup_pte>:
+8000019c:	00000293          	li	t0,0
+800001a0:	00568863          	beq	a3,t0,800001b0 <level_0_pte>
+800001a4:	00100293          	li	t0,1
+800001a8:	02568a63          	beq	a3,t0,800001dc <level_1_pte>
+800001ac:	00008067          	ret
+
+800001b0 <level_0_pte>:
+800001b0:	00004297          	auipc	t0,0x4
+800001b4:	e5028293          	add	t0,t0,-432 # 80004000 <inner_page_table>
+800001b8:	00c55313          	srl	t1,a0,0xc
+800001bc:	3ff37313          	and	t1,t1,1023
+800001c0:	00231313          	sll	t1,t1,0x2
+800001c4:	00c5d593          	srl	a1,a1,0xc
+800001c8:	00a59593          	sll	a1,a1,0xa
+800001cc:	00b665b3          	or	a1,a2,a1
+800001d0:	006282b3          	add	t0,t0,t1
+800001d4:	00b2a023          	sw	a1,0(t0)
+800001d8:	00008067          	ret
+
+800001dc <level_1_pte>:
+800001dc:	00003297          	auipc	t0,0x3
+800001e0:	e2428293          	add	t0,t0,-476 # 80003000 <outer_page_table>
+800001e4:	01655313          	srl	t1,a0,0x16
+800001e8:	3ff37313          	and	t1,t1,1023
+800001ec:	00231313          	sll	t1,t1,0x2
+800001f0:	00c5d593          	srl	a1,a1,0xc
+800001f4:	00a59593          	sll	a1,a1,0xa
+800001f8:	00b665b3          	or	a1,a2,a1
+800001fc:	006282b3          	add	t0,t0,t1
+80000200:	00b2a023          	sw	a1,0(t0)
+80000204:	00008067          	ret
+
+80000208 <write_tohost>:
+80000208:	00100193          	li	gp,1
+8000020c:	00002f17          	auipc	t5,0x2
+80000210:	de3f2a23          	sw	gp,-524(t5) # 80002000 <tohost>
+80000214:	ff5ff06f          	j	80000208 <write_tohost>
+80000218:	00000013          	nop
+8000021c:	00000013          	nop
+
+80000220 <begin_signature>:
+	...
+
+Disassembly of section .tohost:
+
+80002000 <tohost>:
+	...
+
+80002040 <fromhost>:
+	...
+
+Disassembly of section .data:
+
+80003000 <outer_page_table>:
+	...
+
+80004000 <inner_page_table>:
+	...
+
+80005000 <random_data>:
+80005000:	00000123          	sb	zero,2(zero) # 2 <_start-0x7ffffffe>
+
+Disassembly of section .riscv.attributes:
+
+00000000 <.riscv.attributes>:
+   0:	3a41                	.2byte	0x3a41
+   2:	0000                	.2byte	0x0
+   4:	7200                	.2byte	0x7200
+   6:	7369                	.2byte	0x7369
+   8:	01007663          	bgeu	zero,a6,14 <_start-0x7fffffec>
+   c:	0030                	.2byte	0x30
+   e:	0000                	.2byte	0x0
+  10:	7205                	.2byte	0x7205
+  12:	3376                	.2byte	0x3376
+  14:	6932                	.2byte	0x6932
+  16:	7032                	.2byte	0x7032
+  18:	5f30                	.2byte	0x5f30
+  1a:	326d                	.2byte	0x326d
+  1c:	3070                	.2byte	0x3070
+  1e:	615f 7032 5f30      	.byte	0x5f, 0x61, 0x32, 0x70, 0x30, 0x5f
+  24:	3266                	.2byte	0x3266
+  26:	3070                	.2byte	0x3070
+  28:	645f 7032 5f30      	.byte	0x5f, 0x64, 0x32, 0x70, 0x30, 0x5f
+  2e:	6d7a                	.2byte	0x6d7a
+  30:	756d                	.2byte	0x756d
+  32:	316c                	.2byte	0x316c
+  34:	3070                	.2byte	0x3070
+  36:	0800                	.2byte	0x800
+  38:	0a01                	.2byte	0xa01
+  3a:	0b              	Address 0x3a is out of bounds.
+
